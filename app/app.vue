@@ -322,7 +322,7 @@ onBeforeUnmount(() => {
             </div>
           </article>
         </div>
-        <p v-else class="certificate-placeholder" data-reveal>Certificates will be added here as they become available.
+        <p v-else class="certificate-placeholder" data-reveal>Coming soon
         </p>
       </section>
 
