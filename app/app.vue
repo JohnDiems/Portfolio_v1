@@ -160,7 +160,10 @@ onBeforeUnmount(() => {
     <MatrixRain v-if="theme" />
     <header class="site-header">
       <div class="shell header-inner">
-        <a class="brand" href="#home">John Diems<span>.</span></a>
+        <a class="brand" href="#home">
+          <img src="/assets/images/john-diems-avatar.png" alt="" width="32" height="32">
+          <div>John Diems<span>.</span></div>
+        </a>
         <nav aria-label="Main navigation">
           <a href="#projects">Work</a>
           <a href="#about">About</a>
