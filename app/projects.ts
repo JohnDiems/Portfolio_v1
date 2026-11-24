@@ -92,7 +92,7 @@ export const projects = [
     description: 'Helps home bakers price recipes using ingredient costs, yield, packaging, labor, and overhead. It breaks down batch cost, revenue, and estimated profit, then rounds the suggested price up to meet the baker’s target margin.',
     stack: 'React · Vite · Tailwind CSS',
     folder: 'batchbook', files: ['pricing-calculator.webp'],
-    repos: [],
+    repos: ['Batchbook'],
   },
   {
     name: 'SlopScan',
@@ -123,7 +123,7 @@ export const projects = [
       'workspace-overview.webp',
       'quotes-and-follow-ups.webp',
     ],
-    repos: [],
+    repos: ['QuotaFollowPh'],
   },
 ].map(({ folder, files, alternate, repos, ...project }) => ({
   ...project,
