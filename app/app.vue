@@ -219,6 +219,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="project-grid">
           <article v-for="project in projects" :key="project.name" class="project-card" data-reveal>
+            <span class="project-border-sweep" aria-hidden="true"></span>
             <button v-if="project.images.length" type="button" class="project-preview"
               :aria-label="'View gallery for ' + project.name" @click="viewGallery(project)">
               <img :src="project.images[0]" alt="" loading="lazy" decoding="async" width="960" height="540">

@@ -408,6 +408,44 @@ summary { cursor: pointer; width: fit-content; font-weight: 600; font-size: .9re
   transition: opacity var(--motion-press) ease;
 }
 .project-card:focus-within::after { opacity: 1; transition: none; }
+.project-border-sweep { display: none; }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  @supports (mask-composite: exclude) and (width: 1cqmax) {
+    .project-border-sweep {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      padding: 2px;
+      border-radius: inherit;
+      pointer-events: none;
+      container-type: size;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity var(--motion-press) ease;
+    }
+    .project-border-sweep::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 150cqmax;
+      aspect-ratio: 1;
+      background: conic-gradient(from 0deg, transparent 0 270deg, var(--accent) 355deg, transparent 360deg);
+      animation: project-border-orbit 1.8s linear infinite paused;
+    }
+    .project-card:hover .project-border-sweep { opacity: 1; }
+    .project-card:hover .project-border-sweep::before { animation-play-state: running; }
+  }
+}
+
+@keyframes project-border-orbit {
+  from { transform: translate(-50%, -50%) rotate(0turn); }
+  to { transform: translate(-50%, -50%) rotate(1turn); }
+}
+
 .project-preview span::after {
   content: "\2197";
   display: inline-block;
