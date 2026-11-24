@@ -16,7 +16,28 @@ const positions = (compact = false) => nodes.map((node) => ({
   y: compact ? node.mobile[1]! : node.y,
 }))
 const points = ref(positions())
+const hero = ref<HTMLElement>()
+const scrollLayer = ref<HTMLElement>()
+let scrollFrame = 0
+let reducedMotion: MediaQueryList
 let compact: MediaQueryList
+
+function updateScrollFade() {
+  scrollFrame = 0
+  if (!hero.value || !scrollLayer.value) return
+  // The hero starts below the sticky header. Use page scroll so the fade
+  // begins immediately, while the icons are still clearly in view.
+  const { height } = hero.value.getBoundingClientRect()
+  const progress = Math.min(1, Math.max(0, window.scrollY / Math.max(1, height * .35)))
+  // Keep the decoration steady for reduced-motion users; never fade the copy.
+  scrollLayer.value.style.opacity = String(reducedMotion.matches ? 1 : 1 - progress)
+  scrollLayer.value.style.visibility = progress === 1 && !reducedMotion.matches ? 'hidden' : 'visible'
+  if (progress > 0) hoveredNode.value = undefined
+}
+
+function scheduleScrollFade() {
+  if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollFade)
+}
 const hoveredNode = ref<number>()
 const headline = 'Web systems for real work.'
 
@@ -28,22 +49,34 @@ onMounted(() => {
   compact = window.matchMedia('(max-width: 56rem)')
   compact.addEventListener('change', updateLayout)
   updateLayout()
+  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+  reducedMotion.addEventListener('change', scheduleScrollFade)
+  window.addEventListener('scroll', scheduleScrollFade, { passive: true })
+  window.addEventListener('resize', scheduleScrollFade)
+  scheduleScrollFade()
 })
 
-onBeforeUnmount(() => compact?.removeEventListener('change', updateLayout))
+onBeforeUnmount(() => {
+  compact?.removeEventListener('change', updateLayout)
+  reducedMotion?.removeEventListener('change', scheduleScrollFade)
+  window.removeEventListener('scroll', scheduleScrollFade)
+  window.removeEventListener('resize', scheduleScrollFade)
+  cancelAnimationFrame(scrollFrame)
+})
 </script>
 
 <template>
-  <section id="home" class="hero">
+  <section id="home" ref="hero" class="hero">
     <div class="hero-copy">
       <p class="role"><span class="status-dot" /> John Diems · Web developer</p>
       <h1>{{ headline }}</h1>
       <p class="lead">I build public services and business apps with Nuxt frontends and Laravel APIs.</p>
       <div class="actions">
-        <a class="button primary" href="#projects">Explore projects</a>
+        <a class="button primary" href="#projects">Explore projects <span class="action-arrow" aria-hidden="true">↗</span></a>
         <a class="button" href="/assets/images/resume/johnResume.pdf" download>Download résumé</a>
       </div>
     </div>
+    <div ref="scrollLayer" class="network-scroll-layer">
     <div class="network" aria-label="Tools I work with">
       <svg class="connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
         <line
@@ -57,7 +90,7 @@ onBeforeUnmount(() => compact?.removeEventListener('change', updateLayout))
       <div
         v-for="(node, index) in nodes" :key="node.name" class="network-node"
         :class="{ 'node-highlighted': hoveredNode === index }"
-        :style="{ left: points[index]?.x + '%', top: points[index]?.y + '%', '--delay': (index * 45) + 'ms', '--node-color': node.tone }"
+        :style="{ left: points[index]?.x + '%', top: points[index]?.y + '%' }"
         @pointerenter="hoveredNode = index" @pointerleave="hoveredNode = undefined"
       >
         <span class="node-icon" aria-hidden="true">
@@ -65,6 +98,7 @@ onBeforeUnmount(() => compact?.removeEventListener('change', updateLayout))
         </span>
         <span class="node-name">{{ node.name }}</span>
       </div>
+    </div>
     </div>
   </section>
 </template>

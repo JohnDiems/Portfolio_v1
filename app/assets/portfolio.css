@@ -1,4 +1,4 @@
-:root { font-family: Inter, system-ui, sans-serif; scroll-behavior: smooth; }
+:root { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --motion-press: 160ms; --motion-ui: 200ms; --motion-reveal: 300ms; --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); font-family: Inter, system-ui, sans-serif; scroll-behavior: smooth; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 h1, h2, h3, p, dl, dd { margin: 0; }
@@ -23,7 +23,6 @@ a { color: inherit; }
   background: var(--paper);
   color: var(--ink);
   min-height: 100vh;
-  transition: background-color .35s, color .35s;
 }
 .matrix-mode {
   --paper: #0c1419;
@@ -49,7 +48,24 @@ main, footer { position: relative; }
 .brand img { display: block; border-radius: 7px; }
 nav { display: flex; gap: clamp(.65rem, 3vw, 2.1rem); }
 nav a, .site-footer a { text-decoration: none; font-size: .92rem; }
-nav a:hover, .site-footer a:hover { text-decoration: underline; text-underline-offset: .25em; }
+nav a, .site-footer a { position: relative; }
+nav a::after, .site-footer a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -.25em;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-press) ease;
+}
+.action-arrow { margin-left: .5rem; transition: transform var(--motion-press) ease; }
+.project-preview span { transition: transform var(--motion-press) ease; }
+@media (hover: hover) and (pointer: fine) {
+  nav a:hover::after, .site-footer a:hover::after { transform: scaleX(1); }
+  .button:hover .action-arrow { transform: translate(2px, -2px); }
+  .project-preview:hover span { transform: translateY(-2px); }
+}
 .mode-button, .close-button { background: transparent; border: 1px solid var(--line); min-height: 2.5rem; }
 .mode-button { padding: .35rem .7rem; border-radius: 5px; font-size: .85rem; }
 .mode-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
@@ -84,19 +100,23 @@ h1 { max-width: 13ch; margin: 1rem auto 1.15rem; font-size: clamp(3rem, 6vw, 6.2
 .lead, .section-heading p, .about p, .contact p, .dialog p { color: var(--muted); line-height: 1.65; }
 .lead { max-width: 49ch; margin-inline: auto; font-size: clamp(.95rem, 1.5vw, 1.1rem); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin-top: 1.5rem; }
-.button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); text-decoration: none; font-size: .9rem; font-weight: 600; transition: border-color .2s, background-color .2s; }
-.button:hover { border-color: var(--accent); }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); text-decoration: none; font-size: .9rem; font-weight: 600; transition: transform var(--motion-press) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { border-color: var(--accent); }
+  .button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+}
+:is(.mode-button, .close-button) { transition: transform var(--motion-press) var(--ease-out); }
+:is(.button, .mode-button, .close-button):active:not(:focus-visible, :disabled) { transform: scale(.97); }
+:is(.button, .mode-button, .close-button):focus-visible { transition: none; }
 .button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); }
-.button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
 
-.network { position: absolute; inset: 0; pointer-events: none; }
-.connections { position: absolute; width: 100%; height: 100%; animation: enter .45s .73s both; }
+.network { position: absolute; inset: 0; pointer-events: none; animation: enter var(--motion-reveal) var(--ease-out) 80ms both; }
+.connections { position: absolute; width: 100%; height: 100%; }
 .connections line {
   stroke: var(--muted);
   stroke-opacity: .28;
   stroke-dasharray: 3 6;
   stroke-linecap: round;
-  transition: stroke .24s ease, stroke-opacity .24s ease;
 }
 .connections .line-active { stroke: var(--accent); stroke-opacity: .9; }
 .network-node {
@@ -105,21 +125,18 @@ h1 { max-width: 13ch; margin: 1rem auto 1.15rem; font-size: clamp(3rem, 6vw, 6.2
   display: grid;
   justify-items: center;
   pointer-events: auto;
-  animation: assemble-tool .62s cubic-bezier(.16, 1, .3, 1) var(--delay) both;
 }
 .node-icon {
   display: grid;
   place-items: center;
   width: clamp(2.5rem, 4vw, 3.6rem);
   aspect-ratio: 1;
-  transition: filter .24s ease;
 }
 .node-icon img {
   width: 88%;
   height: 88%;
   object-fit: contain;
   filter: saturate(.72);
-  transition: filter .25s;
 }
 .node-name {
   position: absolute;
@@ -130,7 +147,6 @@ h1 { max-width: 13ch; margin: 1rem auto 1.15rem; font-size: clamp(3rem, 6vw, 6.2
   color: var(--muted);
   white-space: nowrap;
   font-size: .73rem;
-  transition: color .24s ease, box-shadow .24s ease;
 }
 .node-highlighted .node-icon { filter: drop-shadow(0 0 .45rem color-mix(in srgb, var(--accent) 45%, transparent)); }
 .node-highlighted .node-icon img { filter: saturate(1.25); }
@@ -138,27 +154,12 @@ h1 { max-width: 13ch; margin: 1rem auto 1.15rem; font-size: clamp(3rem, 6vw, 6.2
   color: var(--accent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent);
 }
-@keyframes assemble-tool {
-  from {
-    left: 50%;
-    top: 50%;
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(.35);
-  }
-
-  35% { opacity: 1; }
-
-  to { transform: translate(-50%, -50%) scale(1); }
-}
 @keyframes enter { from { opacity: 0; } }
 @keyframes hero-intro {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
 }
-.hero-copy > * { animation: hero-intro .43s cubic-bezier(.16, 1, .3, 1) .83s both; }
-.hero-copy > :nth-child(2) { animation-delay: .9s; }
-.hero-copy > :nth-child(3) { animation-delay: .98s; }
-.hero-copy > :nth-child(4) { animation-delay: 1.04s; }
-.hero-copy:focus-within > * { animation: none; }
+.hero-copy { animation: hero-intro var(--motion-reveal) var(--ease-out) both; }
+.hero-copy:focus-within { animation: none; }
 
 .section { border-top: 1px solid var(--line); padding-block: var(--space); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: .6rem 2rem; flex-wrap: wrap; margin-bottom: 2rem; }
@@ -168,8 +169,8 @@ h3 { font-size: clamp(1.25rem, 2.3vw, 1.8rem); letter-spacing: -.045em; line-hei
 .project-card { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
 .project-preview { position: relative; display: block; border: 0; border-bottom: 1px solid var(--line); background: var(--diagram); aspect-ratio: 16 / 9; padding: 0; overflow: hidden; width: 100%; }
 .project-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
-.project-preview .preview-alternate { opacity: 0; object-fit: contain; background: var(--diagram); transition: opacity .38s; }
-@media (hover: hover) {
+.project-preview .preview-alternate { opacity: 0; object-fit: contain; background: var(--diagram); transition: opacity var(--motion-ui) ease; }
+@media (hover: hover) and (pointer: fine) {
   .project-preview:hover .preview-alternate { opacity: 1; }
 }
 .project-preview span { position: absolute; bottom: .65rem; right: .65rem; background: var(--surface); padding: .35rem .55rem; border: 1px solid var(--line); border-radius: 4px; font-size: .8rem; font-weight: 600; }
@@ -180,11 +181,9 @@ h3 { font-size: clamp(1.25rem, 2.3vw, 1.8rem); letter-spacing: -.045em; line-hei
 details { margin-top: auto; padding-top: .55rem; }
 summary { cursor: pointer; width: fit-content; font-weight: 600; font-size: .9rem; }
 .detail-links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin-top: .65rem; font-size: .9rem; color: var(--accent); }
-details[open] .detail-links { animation: rise .45s cubic-bezier(.16, 1, .3, 1) both; }
-.reveal-pending { transition: opacity .65s ease, transform .7s cubic-bezier(.16, 1, .3, 1); }
-.reveal-pending:not(.is-revealed, :focus-within) { opacity: 0; transform: translateY(20px); }
-.project-card:nth-child(even) { transition-delay: .09s; }
-@keyframes rise { from { opacity: .4; transform: translateY(12px); } }
+.reveal-pending { transition: opacity var(--motion-reveal) var(--ease-out), transform var(--motion-reveal) var(--ease-out); }
+.reveal-pending:not(.is-revealed, :focus-within) { opacity: 0; transform: translateY(8px); }
+.reveal-pending:focus-within { transition: none; }
 
 .about { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 2rem; }
 .about p { max-width: 54ch; margin-top: 1rem; }
@@ -206,7 +205,7 @@ details[open] .detail-links { animation: rise .45s cubic-bezier(.16, 1, .3, 1) b
 .contact-details dd { display: flex; flex-wrap: wrap; gap: .35rem 1rem; overflow-wrap: anywhere; }
 .contact-details a { color: var(--accent); text-underline-offset: .2em; }
 @media (prefers-reduced-motion: no-preference) {
-  .contact-details.reveal-pending:not(.is-revealed, :focus-within) { transform: translateX(24px); }
+  .contact-details.reveal-pending:not(.is-revealed, :focus-within) { transform: translateX(8px); }
 }
 @media (max-width: 43rem) { .contact { grid-template-columns: 1fr; } }
 .contact p { margin-top: .65rem; }
@@ -218,9 +217,7 @@ details[open] .detail-links { animation: rise .45s cubic-bezier(.16, 1, .3, 1) b
 .gallery img { width: 100%; max-height: 65svh; object-fit: contain; display: block; }
 .gallery-controls { display: flex; justify-content: space-between; align-items: center; gap: .6rem; margin-top: .8rem; }
 .contact-dialog { position: fixed; inset: auto 1rem 1rem auto; margin: 0; width: 23rem; }
-.contact-dialog[open] { animation: bounce .4s cubic-bezier(.2, .8, .3, 1.4) both; }
 .contact-dialog .button { max-width: 100%; overflow-wrap: anywhere; margin-top: 1rem; }
-@keyframes bounce { from { opacity: 0; transform: translateY(1rem) scale(.94); } }
 
 @media (max-width: 56rem) {
   .hero { min-height: 35rem; }
@@ -239,12 +236,6 @@ details[open] .detail-links { animation: rise .45s cubic-bezier(.16, 1, .3, 1) b
   .header-inner { flex-wrap: wrap; gap: .4rem 1rem; padding-block: .55rem; }
   nav { order: 3; width: 100%; }
   [id] { scroll-margin-top: 6.5rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  :root { scroll-behavior: auto; }
-  .network-node, .connections, .hero-copy > * { animation: none !important; }
-  .reveal-pending:not(.is-revealed, :focus-within) { opacity: 1; transform: none; }
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
 .experience-entry {
@@ -303,47 +294,226 @@ details[open] .detail-links { animation: rise .45s cubic-bezier(.16, 1, .3, 1) b
 .floating-contact-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .floating-contact-header h3 { font-size: 1.25rem; }
 .floating-contact dl { margin-top: .45rem; }
-@media (prefers-reduced-motion: no-preference) {
-  .contact-card-enter-active, .contact-card-leave-active { transition: opacity .28s ease, transform .35s ease; }
-  .contact-card-enter-from, .contact-card-leave-to { opacity: 0; transform: translateX(1.25rem); }
+.contact-card-enter-active, .contact-card-leave-active {
+  transition: opacity var(--motion-ui) var(--ease-out), transform var(--motion-ui) var(--ease-out);
+}
+.contact-card-enter-from, .contact-card-leave-to { opacity: 0; transform: translateX(1.25rem); }
+
+@media (hover: hover) and (pointer: fine) {
+  .node-icon { transition: transform var(--motion-press) ease; }
+  .node-highlighted .node-icon { transform: translateY(-2px); }
+  .project-preview img { transition: transform var(--motion-ui) ease, opacity var(--motion-ui) ease; }
+  .project-preview:hover img { transform: scale(1.02); }
 }
 
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .node-icon {
-    transform: perspective(240px) rotateX(0deg) rotateY(0deg) translateZ(0);
-    transition: transform .3s ease, filter .24s ease;
-  }
-
-  .node-highlighted .node-icon {
-    transform: perspective(240px) rotateX(12deg) rotateY(-16deg) translateZ(18px);
-  }
-
-  .project-preview img {
-    transform: perspective(900px) rotateX(0deg) rotateY(0deg) scale(1);
-    transition: transform .45s cubic-bezier(.16, 1, .3, 1), opacity .38s ease;
-  }
-
-  .project-preview:hover img {
-    transform: perspective(900px) rotateX(2deg) rotateY(-2deg) scale(1.045);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  :is(.project-card, .experience-entry).reveal-pending {
-    transform: perspective(1000px) translateY(0) rotateX(0);
-    transform-origin: center bottom;
-    transition: opacity .55s ease, transform .85s cubic-bezier(.16, 1, .3, 1);
-  }
-
-  :is(.project-card, .experience-entry).reveal-pending:not(.is-revealed, :focus-within) {
-    transform: perspective(1000px) translateY(24px) rotateX(9deg);
-  }
-
-  .project-card.reveal-pending:nth-child(even) {
-    transition-delay: .09s;
-  }
+@media (prefers-reduced-motion: reduce) {
+  :root { scroll-behavior: auto; }
+  .hero-copy, .network { animation: enter var(--motion-ui) var(--ease-out) both; }
+  .cursor { animation: none; }
+  .reveal-pending:not(.is-revealed, :focus-within) { transform: none; }
+  .contact-card-enter-from, .contact-card-leave-to { transform: none; }
+  :is(.button, .mode-button, .close-button):active:not(:focus-visible, :disabled),
+  .node-highlighted .node-icon, .project-preview:hover img { transform: none; }
 }
 
 .contact-form .button:disabled { opacity: .65; cursor: wait; }
 
 .floating-contact-action { margin-top: .75rem; }
+
+/* Native dialogs retain focus trapping and Escape handling. Discrete display
+   and overlay transitions keep them in the top layer through the exit. */
+@supports (transition-behavior: allow-discrete) {
+  .dialog {
+    opacity: 0;
+    transform: scale(.96);
+    transition:
+      opacity var(--motion-ui) var(--ease-out),
+      transform var(--motion-ui) var(--ease-out),
+      display var(--motion-ui) allow-discrete,
+      overlay var(--motion-ui) allow-discrete;
+  }
+  .contact-dialog { transform: translateY(1rem); }
+  .dialog[open] { opacity: 1; transform: none; }
+  .dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--motion-ui) var(--ease-out),
+      display var(--motion-ui) allow-discrete,
+      overlay var(--motion-ui) allow-discrete;
+  }
+  .dialog[open]::backdrop { opacity: 1; }
+  @starting-style {
+    .dialog[open] { opacity: 0; transform: scale(.96); }
+    .contact-dialog[open] { transform: translateY(1rem); }
+    .dialog[open]::backdrop { opacity: 0; }
+  }
+}
+
+/* Keyboard actions are immediate, including native Escape dismissal. */
+.keyboard-input .dialog, .keyboard-input .dialog::backdrop,
+.keyboard-input .action-arrow, .keyboard-input nav a::after,
+.keyboard-input .site-footer a::after { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  nav a::after, .site-footer a::after { transform: none; opacity: 0; transition: opacity var(--motion-press) ease; }
+  .dialog, .contact-dialog { transform: none; }
+  @starting-style {
+    .dialog[open], .contact-dialog[open] { transform: none; }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    nav a:hover::after, .site-footer a:hover::after { opacity: 1; }
+    .button:hover .action-arrow, .project-preview:hover span { transform: none; }
+  }
+}
+
+/* One-time scroll reveals use the existing IntersectionObserver. */
+@media (prefers-reduced-motion: no-preference) {
+  .section-heading.reveal-pending {
+    clip-path: inset(0);
+    transition: clip-path 600ms var(--ease-in-out), opacity var(--motion-reveal) var(--ease-out), transform var(--motion-reveal) var(--ease-out);
+  }
+  .section-heading.reveal-pending:not(.is-revealed, :focus-within) {
+    clip-path: inset(0 0 100% 0);
+  }
+  :is(.project-card, .experience-entry).reveal-pending:not(.is-revealed, :focus-within) {
+    transform: translateY(24px);
+  }
+  .project-card.reveal-pending .project-preview img {
+    transition: transform var(--motion-reveal) var(--ease-out), opacity var(--motion-ui) ease;
+  }
+  .project-card.reveal-pending:not(.is-revealed, :focus-within) .project-preview img {
+    transform: scale(1.045);
+  }
+  .project-card.reveal-pending:focus-within .project-preview img,
+  .section-heading.reveal-pending:focus-within { transition: none; }
+}
+
+/* Decorative first-visit motion: the grid settles behind the introduction. */
+.hero::before { animation: grid-arrive 600ms var(--ease-out) both; }
+@keyframes grid-arrive {
+  from { opacity: 0; transform: scale(.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Fade a pre-painted border rather than animating a shadow on every frame. */
+.project-card { position: relative; }
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--accent), inset 0 0 24px color-mix(in srgb, var(--accent) 8%, transparent);
+  opacity: 0;
+  transition: opacity var(--motion-press) ease;
+}
+.project-card:focus-within::after { opacity: 1; transition: none; }
+.project-preview span::after {
+  content: "\2197";
+  display: inline-block;
+  margin-left: .4rem;
+  transition: transform var(--motion-press) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .project-card:hover::after { opacity: 1; }
+  .project-preview:hover span::after { transform: translate(2px, -2px); }
+}
+
+/* The experience divider draws once as its entry comes into view. */
+.experience-entry { position: relative; }
+.experience-entry::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 3rem;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform var(--motion-reveal) var(--ease-out), opacity var(--motion-reveal) var(--ease-out);
+}
+.experience-entry.reveal-pending:not(.is-revealed, :focus-within)::before {
+  transform: scaleX(0);
+  opacity: 0;
+}
+.experience-entry:focus-within::before { transition: none; }
+.keyboard-input .project-preview span::after { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before { animation: enter var(--motion-ui) var(--ease-out) both; }
+  .experience-entry.reveal-pending:not(.is-revealed, :focus-within)::before { transform: none; }
+  .project-preview:hover span::after { transform: none; }
+}
+
+/* A separate opacity layer lets scroll fading coexist with the intro animation. */
+.network-scroll-layer { position: absolute; inset: 0; pointer-events: none; }
+.keyboard-input .network-scroll-layer { opacity: 1 !important; visibility: visible !important; }
+
+/* Scroll position directly controls opacity, so reversing scroll responds
+   immediately. Focused cards always remain readable. */
+.project-card:focus-within, .keyboard-input .project-card { opacity: 1 !important; }
+/* Reduced-motion cards use a gentler 75–100% opacity range in updateCardFades. */
+
+.certificate-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+.certificate-card { min-width: 0; }
+.certificate-preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  padding: clamp(1rem, 3vw, 2.25rem);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--diagram);
+}
+.certificate-preview img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+.certificate-open {
+  position: absolute;
+  right: .65rem;
+  bottom: .65rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+}
+.certificate-details {
+  display: grid;
+  gap: .5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.certificate-details p { color: var(--muted); line-height: 1.55; }
+.certificate-details .certificate-date { color: var(--accent); font-size: .85rem; font-weight: 600; }
+.certificate-issuer { font-size: .9rem; font-weight: 600; }
+.certificate-link { width: fit-content; color: var(--accent); text-underline-offset: .2em; }
+
+/* Reveal the framed scans once while their captions stay readable. */
+.certificate-preview.reveal-pending:not(.is-revealed, :focus-within) {
+  opacity: .35;
+  transform: scale(.97);
+}
+@media (min-width: 43.001rem) and (prefers-reduced-motion: no-preference) {
+  .certificate-card:nth-child(even) .certificate-preview.reveal-pending:not(:focus-within) {
+    transition-delay: 60ms;
+  }
+}
+@media (max-width: 43rem) {
+  .certificate-gallery { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .certificate-preview.reveal-pending:not(.is-revealed, :focus-within) { transform: none; opacity: 1; }
+}

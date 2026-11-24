@@ -9,6 +9,7 @@ useSeoMeta({
 })
 
 const theme = ref(false)
+const keyboardInput = ref(false)
 const root = ref<HTMLElement>()
 const gallery = ref<HTMLDialogElement>()
 const contactPanel = ref<HTMLDialogElement>()
@@ -27,6 +28,27 @@ const copyFeedback = ref('')
 const email = 'johndiems7@gmail.com'
 const terminalCommand = '$ cat about.txt'
 let observer: IntersectionObserver | undefined
+let projectCards: HTMLElement[] = []
+let cardFadeFrame = 0
+let cardMotionPreference: MediaQueryList | undefined
+
+function updateCardFades() {
+  cardFadeFrame = 0
+  const viewport = window.innerHeight
+  // Reach full opacity early; keep the central reading area completely steady.
+  for (const card of projectCards) {
+    const { top, bottom, height } = card.getBoundingClientRect()
+    const visible = Math.max(0, Math.min(bottom, viewport) - Math.max(top, 0))
+    const fadeDistance = Math.max(1, Math.min(height, viewport) * .6)
+    const minimumOpacity = cardMotionPreference?.matches ? .75 : .15
+    const opacity = minimumOpacity + (1 - minimumOpacity) * Math.min(1, visible / fadeDistance)
+    card.style.opacity = String(opacity)
+  }
+}
+
+function scheduleCardFades() {
+  if (!cardFadeFrame) cardFadeFrame = requestAnimationFrame(updateCardFades)
+}
 let typing: ReturnType<typeof setInterval> | undefined
 
 function toggleTheme() {
@@ -126,7 +148,13 @@ onMounted(() => {
   previousScrollY = Math.max(0, window.scrollY)
   window.addEventListener('scroll', revealContactCard, { passive: true })
   theme.value = localStorage.getItem('portfolio-matrix') === 'true'
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+  cardMotionPreference = matchMedia('(prefers-reduced-motion: reduce)')
+  cardMotionPreference.addEventListener('change', scheduleCardFades)
+  projectCards = Array.from(root.value?.querySelectorAll<HTMLElement>('.project-card') ?? [])
+  window.addEventListener('scroll', scheduleCardFades, { passive: true })
+  window.addEventListener('resize', scheduleCardFades)
+  scheduleCardFades()
+  if (cardMotionPreference.matches || !('IntersectionObserver' in window)) {
     terminalLine.value = terminalCommand
     return
   }
@@ -138,7 +166,7 @@ onMounted(() => {
       observer?.unobserve(entry.target)
     }
   }, { threshold: .06 })
-  root.value?.querySelectorAll('[data-reveal]').forEach((element) => {
+  root.value?.querySelectorAll('[data-reveal]:not(.project-card)').forEach((element) => {
     if (element.getBoundingClientRect().top >= window.innerHeight) {
       element.classList.add('reveal-pending')
     }
@@ -150,19 +178,26 @@ onBeforeUnmount(() => {
   window.removeEventListener('scroll', revealContactCard)
   clearTimeout(contactHideTimer)
   observer?.disconnect()
+  window.removeEventListener('scroll', scheduleCardFades)
+  window.removeEventListener('resize', scheduleCardFades)
+  cancelAnimationFrame(cardFadeFrame)
+  cardMotionPreference?.removeEventListener('change', scheduleCardFades)
+  projectCards = []
   clearInterval(typing)
 })
 </script>
 
 <template>
-  <div ref="root" class="portfolio" :class="{ 'matrix-mode': theme }">
+  <div ref="root" class="portfolio" :class="{ 'matrix-mode': theme, 'keyboard-input': keyboardInput }"
+    @keydown.capture="keyboardInput = true" @pointerdown.capture="keyboardInput = false"
+    @wheel.capture.passive="keyboardInput = false" @touchstart.capture.passive="keyboardInput = false">
     <a class="skip" href="#main">Skip to content</a>
     <MatrixRain v-if="theme" />
     <header class="site-header">
       <div class="shell header-inner">
         <a class="brand" href="#home">
           <img src="/assets/images/john-diems-avatar.png" alt="" width="32" height="32">
-          <div>John Diems<span>.</span></div>
+          <div>John Developer<span>.</span></div>
         </a>
         <nav aria-label="Main navigation">
           <a href="#projects">Work</a>
@@ -308,20 +343,28 @@ onBeforeUnmount(() => {
       </section>
 
       <section id="certificates" class="shell section" aria-labelledby="certificates-title">
-        <div class="section-heading" data-reveal>
+        <div class="section-heading">
           <h2 id="certificates-title">Certificates</h2>
         </div>
-        <div v-if="certificates.length" class="experience-list">
+        <div v-if="certificates.length" class="certificate-gallery">
           <article v-for="certificate in certificates"
-            :key="certificate.title + certificate.issuer + certificate.issued" class="experience-entry" data-reveal>
-            <div class="experience-meta">
+            :key="certificate.title + certificate.issuer + certificate.issued" class="certificate-card">
+            <a v-if="certificate.image" :href="certificate.image.src" class="certificate-preview"
+              target="_blank" rel="noopener noreferrer" data-reveal
+              :aria-label="'Open full-size certificate for ' + certificate.title + ' (new tab)'">
+              <img :src="certificate.image.src" :alt="certificate.image.alt"
+                :width="certificate.image.width" :height="certificate.image.height" loading="lazy" decoding="async">
+              <span class="certificate-open" aria-hidden="true">↗</span>
+            </a>
+            <div class="certificate-details">
+              <p class="certificate-date">{{ certificate.issued }}</p>
               <h3>{{ certificate.title }}</h3>
-              <p>{{ certificate.issuer }}</p>
-            </div>
-            <div class="experience-copy">
-              <p>{{ certificate.issued }}</p>
-              <a v-if="certificate.credentialUrl" :href="certificate.credentialUrl"
-                :aria-label="'View certificate for ' + certificate.title">View certificate</a>
+              <p class="certificate-issuer">{{ certificate.issuer }}</p>
+              <p v-if="certificate.description">{{ certificate.description }}</p>
+              <a v-if="certificate.credentialUrl && certificate.credentialUrl !== certificate.image?.src"
+                :href="certificate.credentialUrl" class="certificate-link" target="_blank" rel="noopener noreferrer">
+                View certificate
+              </a>
             </div>
           </article>
         </div>
