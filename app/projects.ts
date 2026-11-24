@@ -1,5 +1,5 @@
 const images = '/assets/images/'
-const numbered = (count: number) => Array.from({ length: count }, (_, i) => `${i + 1}.png`)
+const numbered = (count: number) => Array.from({ length: count }, (_, i) => `${i + 1}.webp`)
 
 export const projects = [
   {
@@ -7,7 +7,7 @@ export const projects = [
     category: 'Public services',
     description: 'Davao City’s housing platform brings applications and beneficiary records into one system. Staff can review evaluations and track cases through the relocation process.',
     stack: 'Nuxt · Laravel · Tailwind CSS',
-    folder: 'hmis', files: ['login.png'], alternate: 'hmislogo.png',
+    folder: 'hmis', files: ['login.webp'], alternate: 'hmislogo.webp',
     url: 'https://hmis.davaocity.gov.ph',
     repos: [],
     sourceRestricted: true,
@@ -17,7 +17,7 @@ export const projects = [
     category: 'Public services',
     description: 'A central record for Davao City’s athletes, coaches, and sporting events. It supports registration, performance monitoring, and reporting across the city’s sports programs.',
     stack: 'Nuxt · Laravel · Tailwind CSS',
-    folder: 'dcasis', files: ['login.png'], alternate: 'sports.png',
+    folder: 'dcasis', files: ['login.webp'], alternate: 'sports.webp',
     url: 'https://dcasis.davaocity.gov.ph',
     repos: [],
     sourceRestricted: true,
@@ -38,7 +38,7 @@ export const projects = [
     category: 'Education',
     description: 'A campus platform that connects students, faculty, and administrators. It brings enrollment, academic records, and services such as the library, clinic, and registrar into one system.',
     stack: 'Laravel · Materialize CSS',
-    folder: 'ccd', files: ['index.png', 'menu.png', 'academics.png', 'clinic.png', 'education.png', 'library.png', 'registrar.png', 'research.png', 'studentoffice.png'],
+    folder: 'ccd', files: ['index.webp', 'menu.webp', 'academics.webp', 'clinic.webp', 'education.webp', 'library.webp', 'registrar.webp', 'research.webp', 'studentoffice.webp'],
     repos: [],
     sourceRestricted: true,
   },
@@ -59,13 +59,13 @@ export const projects = [
     stack: 'HTML · CSS · JavaScript · Tailwind CSS · Font Awesome',
     folder: 'glamour-gowns',
     files: [
-      'storefront-home.png',
-      'fittings-and-offers.png',
-      'featured-collection.png',
-      'gown-catalog.png',
-      'gown-catalog-alt.png',
-      'wine-red-gown.jpg',
-      'champagne-gown.jpg',
+      'storefront-home.webp',
+      'fittings-and-offers.webp',
+      'featured-collection.webp',
+      'gown-catalog.webp',
+      'gown-catalog-alt.webp',
+      'wine-red-gown.webp',
+      'champagne-gown.webp',
     ],
     url: 'https://glamour-gowns.vercel.app/',
     repos: ['Glamour_Gowns'],
@@ -91,7 +91,7 @@ export const projects = [
     category: 'Business applications',
     description: 'Helps home bakers price recipes using ingredient costs, yield, packaging, labor, and overhead. It breaks down batch cost, revenue, and estimated profit, then rounds the suggested price up to meet the baker’s target margin.',
     stack: 'React · Vite · Tailwind CSS',
-    folder: 'batchbook', files: ['pricing-calculator.png'],
+    folder: 'batchbook', files: ['pricing-calculator.webp'],
     repos: [],
   },
   {
@@ -99,7 +99,7 @@ export const projects = [
     category: 'Developer tools',
     description: 'Analyzes a website URL or uploaded screenshot for patterns commonly found in AI-generated interfaces. It returns a score and a breakdown of findings across layout, typography, copy, and markup where available.',
     stack: 'Nuxt · TypeScript · Playwright',
-    folder: 'slopscan', files: ['homepage.png', 'report-overview.png', 'report-details.png', 'netflix-report.png'],
+    folder: 'slopscan', files: ['homepage.webp', 'report-overview.webp', 'report-details.webp', 'netflix-report.webp'],
     repos: ['ai-slop-scan'],
   },
   {
@@ -107,7 +107,7 @@ export const projects = [
     category: 'Business applications',
     description: 'A web-based checkout and back-office system for café operations. It supports cash and mobile payments, enforces daily production limits, and helps staff manage cashier shifts, receipts, and sales reports.',
     stack: 'Next.js · TypeScript · Supabase',
-    folder: 'cafe-elvira-pos', files: ['portfolio-preview.jpg'],
+    folder: 'cafe-elvira-pos', files: ['portfolio-preview.webp'],
     repos: ['Elvira-FE', 'Elvira-BE'],
   },
   {
@@ -117,11 +117,11 @@ export const projects = [
     stack: 'Nuxt · Vue · TypeScript · Supabase',
     folder: 'quotefollow-ph',
     files: [
-      'homepage.png',
-      'features-and-workflow.png',
-      'pricing-and-faq.png',
-      'workspace-overview.png',
-      'quotes-and-follow-ups.png',
+      'homepage.webp',
+      'features-and-workflow.webp',
+      'pricing-and-faq.webp',
+      'workspace-overview.webp',
+      'quotes-and-follow-ups.webp',
     ],
     repos: [],
   },

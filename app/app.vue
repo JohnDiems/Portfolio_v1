@@ -349,7 +349,7 @@ onBeforeUnmount(() => {
         <div v-if="certificates.length" class="certificate-gallery">
           <article v-for="certificate in certificates"
             :key="certificate.title + certificate.issuer + certificate.issued" class="certificate-card">
-            <a v-if="certificate.image" :href="certificate.image.src" class="certificate-preview"
+            <a v-if="certificate.image" :href="certificate.image.fullSizeSrc ?? certificate.image.src" class="certificate-preview"
               target="_blank" rel="noopener noreferrer" data-reveal
               :aria-label="'Open full-size certificate for ' + certificate.title + ' (new tab)'">
               <img :src="certificate.image.src" :alt="certificate.image.alt"
@@ -361,7 +361,7 @@ onBeforeUnmount(() => {
               <h3>{{ certificate.title }}</h3>
               <p class="certificate-issuer">{{ certificate.issuer }}</p>
               <p v-if="certificate.description">{{ certificate.description }}</p>
-              <a v-if="certificate.credentialUrl && certificate.credentialUrl !== certificate.image?.src"
+              <a v-if="certificate.credentialUrl"
                 :href="certificate.credentialUrl" class="certificate-link" target="_blank" rel="noopener noreferrer">
                 View certificate
               </a>
